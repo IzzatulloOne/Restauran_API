@@ -1,0 +1,36 @@
+from django.urls import path
+from .views import (
+    RestaurantList, RestaurantDetail,
+    MenuList, MenuDetail,
+    DishList, DishDetail,
+    CustomerList, CustomerDetail,
+    AddressList, AddressDetail,
+    DriverList, DriverDetail,
+    OrderList, OrderDetail,
+    OrderItemList, OrderItemDetail,
+    DeliveryList, DeliveryDetail,
+    PaymentList, PaymentDetail,
+)
+
+urlpatterns = [
+    path('restaurants/', RestaurantList.as_view(), name='restaurant-list'),
+    path('restaurants/<int:pk>/', RestaurantDetail.as_view(), name='restaurant-detail'),
+    path('menus/', MenuList.as_view(), name='menu-list'),
+    path('menus/<int:pk>/', MenuDetail.as_view(), name='menu-detail'),
+    path('dishes/', DishList.as_view(), name='dish-list'),
+    path('dishes/<int:pk>/', DishDetail.as_view(), name='dish-detail'),
+    path('customers/', CustomerList.as_view(), name='customer-list'),
+    path('customers/<int:pk>/', CustomerDetail.as_view(), name='customer-detail'),
+    path('addresses/', AddressList.as_view(), name='address-list'),
+    path('addresses/<int:pk>/', AddressDetail.as_view(), name='address-detail'),
+    path('drivers/', DriverList.as_view(), name='driver-list'),
+    path('drivers/<int:pk>/', DriverDetail.as_view(), name='driver-detail'),
+    path('orders/', OrderList.as_view(), name='order-list'),
+    path('orders/<int:pk>/', OrderDetail.as_view(), name='order-detail'),
+    path('order-items/', OrderItemList.as_view(), name='order-item-list'),
+    path('order-items/<int:pk>/', OrderItemDetail.as_view(), name='order-item-detail'),
+    path('deliveries/', DeliveryList.as_view(), name='delivery-list'),
+    path('deliveries/<int:pk>/', DeliveryDetail.as_view(), name='delivery-detail'),
+    path('payments/', PaymentList.as_view(), name='payment-list'),
+    path('payments/<int:pk>/', PaymentDetail.as_view(), name='payment-detail'),
+]
