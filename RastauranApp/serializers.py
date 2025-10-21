@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment
+from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment, Comment, ReactionOfRestaurant, Dish
 
 
 class CustomDepthMenu(serializers.ModelSerializer):
@@ -132,3 +132,35 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    likes = serializers.IntegerField(read_only=True)
+    dislikes = serializers.IntegerField(read_only=True)
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id", "customer", "author", "restaurant", "text", "rating",
+            "created_at", "updated_at", "is_active", "likes", "dislikes"
+        ]
+        read_only_fields = ["id", "created_at", "updated_at", "likes", "dislikes", "author"]
+
+    def get_author(self, obj):
+        return {
+            "id": obj.customer.id,
+            "first_name": obj.customer.first_name,
+            "last_name": obj.customer.last_name,
+        }
+
+class RestaurantSerializer(serializers.ModelSerializer):
+    comments_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Restaurant
+        fields = [
+            "id", "name", "phone", "email", "description", "rating",
+            "created_at", "updated_at", "is_active", "comments_count"
+        ]
+        read_only_fields = ["comments_count"]

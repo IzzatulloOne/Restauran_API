@@ -10,7 +10,11 @@ from .views import (
     OrderItemList, OrderItemDetail,
     DeliveryList, DeliveryDetail,
     PaymentList, PaymentDetail,
+    RestaurantCommentsListCreateView,
+    RestaurantRetrieveView,
+    CommentReactView,
 )
+
 
 urlpatterns = [
     path('restaurants/', RestaurantList.as_view(), name='restaurant-list'),
@@ -33,4 +37,7 @@ urlpatterns = [
     path('deliveries/<int:pk>/', DeliveryDetail.as_view(), name='delivery-detail'),
     path('payments/', PaymentList.as_view(), name='payment-list'),
     path('payments/<int:pk>/', PaymentDetail.as_view(), name='payment-detail'),
+    path('restaurants/<int:pk>/', RestaurantRetrieveView.as_view(), name='restaurant-detail'),
+    path('restaurants/<int:restaurant_id>/comments/', RestaurantCommentsListCreateView.as_view(), name='restaurant-comments'),
+    path('comments/<int:comment_id>/react/', CommentReactView.as_view(), name='comment-react'),
 ]

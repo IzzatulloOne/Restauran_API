@@ -1,8 +1,13 @@
 from rest_framework import generics
-
-from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment
-from .serializers import RestaurantSerializer, MenuSerializer, DishSerializer, CustomerSerializer, AddressSerializer, DriverSerializer, OrderSerializer, OrderItemSerializer, DeliverySerializer, PaymentSerializer
-
+from rest_framework import serializers
+from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment, Comment, ReactionOfRestaurant
+from .serializers import RestaurantSerializer, MenuSerializer, DishSerializer, CustomerSerializer, AddressSerializer, DriverSerializer, OrderSerializer, OrderItemSerializer, DeliverySerializer, PaymentSerializer,CommentSerializer, RestaurantSerializer
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
 
 class RestaurantList(generics.ListAPIView):
     queryset = Restaurant.objects.all()
@@ -102,3 +107,61 @@ class PaymentList(generics.ListAPIView):
 class PaymentDetail(generics.RetrieveAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+
+
+class RestaurantCommentsListCreateView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        restaurant_id = self.kwargs["restaurant_id"]
+        return Comment.objects.filter(restaurant_id=restaurant_id).annotate(
+            likes=Count('reactions', filter=Q(reactions__is_like=True)),
+            dislikes=Count('reactions', filter=Q(reactions__is_like=False))
+        )
+
+    def perform_create(self, serializer):
+        restaurant_id = self.kwargs["restaurant_id"]
+        serializer.save(restaurant_id=restaurant_id)
+
+
+class RestaurantRetrieveView(generics.RetrieveAPIView):
+    serializer_class = RestaurantSerializer
+
+    def get_queryset(self):
+        return Restaurant.objects.annotate(
+            comments_count=Count('comments')
+        )
+
+
+class CommentReactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, comment_id):
+        customer_id = request.data.get("customer_id")
+        is_like = request.data.get("is_like")
+
+        if not customer_id or is_like is None:
+            return Response(
+                {"detail": "Нужно указать customer_id и is_like (true/false)"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        comment = get_object_or_404(Comment, id=comment_id)
+
+        reaction, created = ReactionOfRestaurant.objects.get_or_create(
+            customer_id=customer_id,
+            comment=comment,
+            defaults={"is_like": bool(is_like)},
+        )
+
+        if created:
+            return Response({"status": "создано", "is_like": reaction.is_like})
+
+        if reaction.is_like == bool(is_like):
+            reaction.delete()
+            return Response({"status": "удалено"})
+        else:
+            reaction.is_like = bool(is_like)
+            reaction.save()
+            return Response({"status": "обновлено", "is_like": reaction.is_like})

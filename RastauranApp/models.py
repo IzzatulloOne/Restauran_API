@@ -239,3 +239,84 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for Order {self.order.id}"
+
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+
+class Comment(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    customer = models.ForeignKey(
+        'Customer',
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    restaurant = models.ForeignKey(
+        'Restaurant',
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    text = models.TextField()
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        null=True,
+        blank=True,
+        help_text="Оценка ресторана от 1 до 5"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'comments'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Comment by {self.customer} on {self.restaurant}"
+
+
+class Like(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    customer = models.ForeignKey(
+        'Customer',
+        on_delete=models.CASCADE,
+        related_name='likes'
+    )
+    comment = models.ForeignKey(
+        Comment,
+        on_delete=models.CASCADE,
+        related_name='likes'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'likes'
+        unique_together = ('customer', 'comment') 
+
+    def __str__(self):
+        return f"{self.customer} liked comment {self.comment.id}"
+
+
+class ReactionOfRestaurant  (models.Model):
+    """
+    Represents like/dislike on a comment.
+    is_like = True  => like
+    is_like = False => dislike
+    """
+    id = models.BigAutoField(primary_key=True)
+    customer = models.ForeignKey(
+        'Customer', on_delete=models.CASCADE, related_name='reactions'
+    )
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name='reactions'
+    )
+    is_like = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'reactions'
+        unique_together = ('customer', 'comment')  
+
+    def __str__(self):
+        t = "Like" if self.is_like else "Dislike"
+        return f"{self.customer} {t} comment {self.comment.id}"
