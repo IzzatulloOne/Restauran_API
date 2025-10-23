@@ -1,6 +1,6 @@
 from django.test import TestCase
-from ..models import Restaurant
-from ..serializers import RestaurantSerializer
+from RastauranApp.models import Restaurant
+from RastauranApp.serializers import RestaurantSerializer
 
 
 class RestaurantSerializerTest(TestCase):
@@ -16,7 +16,6 @@ class RestaurantSerializerTest(TestCase):
         self.restaurant = Restaurant.objects.create(**self.restaurant_data)
 
     def test_restaurant_serializer_contains_expected_fields(self):
-        """Тест проверяет наличие всех ожидаемых полей в сериализаторе"""
         serializer = RestaurantSerializer(instance=self.restaurant)
         data = serializer.data
         
@@ -29,7 +28,6 @@ class RestaurantSerializerTest(TestCase):
             self.assertIn(field, data)
 
     def test_restaurant_serializer_field_values(self):
-        """Тест проверяет корректность значений полей"""
         serializer = RestaurantSerializer(instance=self.restaurant)
         
         self.assertEqual(serializer.data['name'], self.restaurant_data['name'])

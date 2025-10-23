@@ -1,24 +1,21 @@
 from django.test import TestCase
-from ..models import Restaurant, Customer, Comment, ReactionOfRestaurant
-from ..serializers import CommentSerializer
+from RastauranApp.models import Restaurant, Customer, Comment, Reaction
+from RastauranApp.serializers import CommentSerializer
 
 
 class CommentSerializerTest(TestCase):
     def setUp(self):
-        # Создаем ресторан
         self.restaurant = Restaurant.objects.create(
             name='Test Restaurant',
             phone='+1234567890'
         )
         
-        # Создаем клиента
         self.customer = Customer.objects.create(
             first_name='John',
             last_name='Doe',
             email='john@example.com'
         )
         
-        # Создаем комментарий
         self.comment = Comment.objects.create(
             customer=self.customer,
             restaurant=self.restaurant,
@@ -26,8 +23,7 @@ class CommentSerializerTest(TestCase):
             rating=5
         )
         
-        # Создаем лайки и дизлайки для комментария
-        ReactionOfRestaurant.objects.create(
+        Reaction.objects.create(
             customer=self.customer,
             comment=self.comment,
             is_like=True
@@ -38,14 +34,13 @@ class CommentSerializerTest(TestCase):
             last_name='Smith',
             email='jane@example.com'
         )
-        ReactionOfRestaurant.objects.create(
+        Reaction.objects.create(
             customer=another_customer,
             comment=self.comment,
             is_like=False
         )
 
     def test_comment_serializer_fields(self):
-        """Тест проверяет поля сериализатора комментариев"""
         serializer = CommentSerializer(instance=self.comment)
         data = serializer.data
         
@@ -58,15 +53,12 @@ class CommentSerializerTest(TestCase):
             self.assertIn(field, data)
 
     def test_comment_serializer_likes_dislikes_count(self):
-        """Тест проверяет корректный подсчет лайков и дизлайков"""
         serializer = CommentSerializer(instance=self.comment)
         
-        # Должен быть 1 лайк и 1 дизлайк
         self.assertEqual(serializer.data['likes'], 1)
         self.assertEqual(serializer.data['dislikes'], 1)
 
     def test_comment_serializer_author_field(self):
-        """Тест проверяет поле author с информацией о клиенте"""
         serializer = CommentSerializer(instance=self.comment)
         author_data = serializer.data['author']
         
