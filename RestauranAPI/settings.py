@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'RestauranAPI.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rest_api',
+        'NAME': 'rest_api_v1',
         'HOST': 'localhost',
         'PORT': '5432',
         'USER': 'postgres',
