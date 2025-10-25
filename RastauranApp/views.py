@@ -6,11 +6,19 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment, Comment, Reaction
 from .serializers import RestaurantSerializer, MenuSerializer, DishSerializer, CustomerSerializer, AddressSerializer, DriverSerializer, OrderSerializer, OrderItemSerializer, DeliverySerializer, PaymentSerializer, CommentSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class RestaurantList(generics.ListAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['is_active', 'rating']
+    search_fields = ['name', 'description', 'email']
+    ordering_fields = ['name', 'rating', 'created_at']
+    ordering = ['name']
 
+    
 class RestaurantDetail(generics.RetrieveAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer

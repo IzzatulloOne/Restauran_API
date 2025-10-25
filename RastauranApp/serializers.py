@@ -37,6 +37,18 @@ class RestaurantSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["comments_count"]
 
+
+from django_filters.rest_framework import FilterSet, CharFilter, BooleanFilter
+
+class RestaurantFilter(FilterSet):
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+    is_active = BooleanFilter(field_name='is_active')
+    
+    class Meta:
+        model = Restaurant
+        fields = ['name', 'is_active']
+
+
 class MenuSerializer(serializers.ModelSerializer):
     restaurant = CustomDepthRestaurant()
 
