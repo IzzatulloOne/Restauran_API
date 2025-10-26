@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Restaurant, Menu, Dish, Customer, Address, Driver, Order, OrderItem, Delivery, Payment, Comment, Reaction
+from django_filters.rest_framework import FilterSet, CharFilter, BooleanFilter
+
 
 class CustomDepthRestaurant(serializers.ModelSerializer):
     class Meta:
@@ -37,8 +39,6 @@ class RestaurantSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["comments_count"]
 
-
-from django_filters.rest_framework import FilterSet, CharFilter, BooleanFilter
 
 class RestaurantFilter(FilterSet):
     name = CharFilter(field_name='name', lookup_expr='icontains')
